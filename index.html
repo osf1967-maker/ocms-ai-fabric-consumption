@@ -1,11 +1,210 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OCMS AI Fabric Consumption</title><link rel="stylesheet" href="style.css"></head><body>
-<header><div class="brand">OCMS</div><div><h1>AI-Based Fabric Consumption Engine</h1><p>Primary Estimate → Missing Inputs → Revised → CAD Validation → Final Approval</p></div></header>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="OCMS AI-Based Fabric Consumption SaaS">
+<title>OCMS AI Fabric Consumption SaaS V10</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="brandwrap">
+    <div class="brand">OCMS</div>
+    <div>
+      <h1>AI-Based Fabric Consumption SaaS</h1>
+      <p>Tech Pack → Primary → Missing Inputs → Revised → CAD → Approval → ERP</p>
+    </div>
+  </div>
+  <div class="header-actions">
+    <span id="connectionBadge" class="badge warn">LOCAL DEMO</span>
+    <button id="authBtn" class="ghost">Sign In</button>
+  </div>
+</header>
+
+<nav class="tabs">
+  <button class="tab active" data-tab="dashboard">Dashboard</button>
+  <button class="tab" data-tab="intake">Tech Pack Intake</button>
+  <button class="tab" data-tab="calculator">Calculator</button>
+  <button class="tab" data-tab="components">Components</button>
+  <button class="tab" data-tab="saved">Saved Styles</button>
+  <button class="tab" data-tab="masters">Masters</button>
+  <button class="tab" data-tab="cad">CAD & Approval</button>
+  <button class="tab" data-tab="admin">Admin</button>
+</nav>
+
 <main>
-<section class="card"><h2>Style & Fabric Input</h2><div class="grid">
-<label>Style<select id="style"><option>Basic T-Shirt</option><option>Basic Polo</option><option>Pullover Hoodie</option><option>Zipper Hoodie</option><option>Ladies Leggings</option><option>Joggers</option><option>Vest</option><option>Knit Dress</option><option>Knit Blazer</option><option>Woven Shirt</option><option>Woven Trouser</option></select></label>
-<label>Fabric GSM<input id="gsm" type="number" value="180"></label><label>Wastage %<input id="wastage" type="number" value="10" step="0.1"></label><label>Status<input value="PRIMARY ESTIMATE" disabled></label>
-</div></section>
-<section class="card"><div class="row"><h2>Size-wise Consumption</h2><button id="calc">Calculate All Sizes</button></div><div class="tablewrap"><table id="sizes"><thead><tr><th>Size</th><th>BL</th><th>½ Chest</th><th>CB Sleeve</th><th>Shoulder</th><th>SL</th><th>Ratio</th><th>KG/DZ</th><th>g/pc</th></tr></thead><tbody></tbody></table></div><div class="summary"><strong>Weighted Average:</strong> <span id="weighted">0.000 KG/DZ</span></div></section>
-<section class="grid2"><div class="card"><h2>Missing Input Review</h2><div id="missing"></div></div><div class="card"><h2>CAD Comparison</h2><label>CAD Consumption KG/DZ<input id="cad" type="number" step="0.001"></label><button id="compare">Compare</button><div id="variance" class="result">Variance: —</div></div></section>
-<section class="card"><h2>OCMS Calculation Rule</h2><code>KG/DZ = ((BL + SL + 8) × (HC + 4) × 2 × GSM × 12 × (1 + wastage)) / 10,000,000</code><p class="note">SL = CB Sleeve − Across Shoulder / 2 where applicable. Quick allowances must not be double-counted with physical pattern seam allowances.</p></section>
-</main><footer>OCMS • Fabric Consumption SaaS MVP</footer><script src="app.js"></script></body></html>
+<section id="dashboard" class="panel active">
+  <section class="hero card">
+    <div>
+      <h2>OCMS Fabric Consumption Command Center</h2>
+      <p>One controlled workflow for knit and woven primary estimation, merchandiser revision, CAD comparison and final approval.</p>
+    </div>
+    <button data-goto="intake">Start New Calculation</button>
+  </section>
+  <div class="kpis">
+    <div class="kpi"><span>Saved Calculations</span><b id="kpiSaved">0</b></div>
+    <div class="kpi"><span>Pending Inputs</span><b id="kpiPending">0</b></div>
+    <div class="kpi"><span>CAD Validated</span><b id="kpiCad">0</b></div>
+    <div class="kpi"><span>Final Approved</span><b id="kpiApproved">0</b></div>
+  </div>
+  <section class="card">
+    <h2>Workflow</h2>
+    <div class="flow">
+      <div>1<br><b>Upload / Paste</b></div><span>→</span>
+      <div>2<br><b>AI Mapping</b></div><span>→</span>
+      <div>3<br><b>Primary</b></div><span>→</span>
+      <div>4<br><b>Missing Inputs</b></div><span>→</span>
+      <div>5<br><b>Revised</b></div><span>→</span>
+      <div>6<br><b>CAD</b></div><span>→</span>
+      <div>7<br><b>Final Approval</b></div>
+    </div>
+  </section>
+</section>
+
+<section id="intake" class="panel">
+  <section class="card">
+    <div class="row between">
+      <h2>Tech Pack Intake</h2><span class="pill blue">PHASE 7 AI-READY</span>
+    </div>
+    <div class="grid4">
+      <label>Buyer<input id="buyer" placeholder="Buyer"></label>
+      <label>Style Ref<input id="styleRef" placeholder="Style / Order Ref"></label>
+      <label>Season<input id="season" placeholder="Season"></label>
+      <label>File<input id="techFile" type="file" accept=".pdf,.png,.jpg,.jpeg,.xlsx,.xls,.csv,.txt"></label>
+    </div>
+    <label>Extracted / Pasted Text<textarea id="sourceText" rows="10" placeholder="Paste tech-pack text here. Connected AI endpoint can populate this in production."></textarea></label>
+    <div class="actions">
+      <button id="analyzeBtn">Analyze & Map</button>
+      <button id="loadDemoBtn" class="secondary">Load Demo</button>
+      <button id="clearIntakeBtn" class="secondary">Clear</button>
+    </div>
+    <p class="note">AI boundary: OCR/image/PDF interpretation is optional and pluggable. Final consumption arithmetic remains deterministic and auditable.</p>
+  </section>
+  <section class="grid2">
+    <section class="card">
+      <h2>Detection</h2>
+      <div class="summarygrid">
+        <div><span>Style</span><b id="detectedStyle">—</b></div>
+        <div><span>Confidence</span><b id="detectedConfidence">—</b></div>
+        <div><span>GSM</span><b id="detectedGsm">—</b></div>
+        <div><span>Size Range</span><b id="detectedRange">—</b></div>
+      </div>
+    </section>
+    <section class="card"><h2>Missing Inputs</h2><div id="autoMissingList"></div></section>
+  </section>
+  <section class="card">
+    <h2>Measurement Mapping</h2>
+    <div class="tablewrap"><table id="mappingTable"><thead><tr><th>Detected Term</th><th>OCMS POM</th><th>Value</th><th>Unit</th><th>Confidence</th><th>Status</th></tr></thead><tbody></tbody></table></div>
+    <button id="sendToCalcBtn">Send to Calculator</button>
+  </section>
+</section>
+
+<section id="calculator" class="panel">
+  <section class="card">
+    <div class="row between"><h2>Style & Fabric</h2><span id="statusPill" class="pill orange">PRIMARY</span></div>
+    <div class="grid4">
+      <label>Style<select id="style"></select></label>
+      <label>Main GSM<input id="gsm" type="number" value="180"></label>
+      <label>Wastage %<input id="wastage" type="number" value="10" step="0.1"></label>
+      <label>Method<select id="method"><option value="quick">Quick Formula</option><option value="geometry">Geometry</option><option value="woven">Woven Marker</option></select></label>
+    </div>
+    <p id="styleNote" class="note"></p>
+  </section>
+  <section class="card">
+    <div class="row between"><h2>Size-wise Consumption</h2><div class="actions"><button id="calcBtn">Calculate</button><button id="saveBtn" class="secondary">Save Calculation</button></div></div>
+    <div class="tablewrap"><table id="sizeTable"><thead><tr><th>Size</th><th>BL</th><th>½ Chest</th><th>CB Sleeve</th><th>Shoulder</th><th>SL</th><th>Ratio</th><th>Primary KG/DZ</th><th>Revised KG/DZ</th></tr></thead><tbody></tbody></table></div>
+    <div class="summarygrid">
+      <div><span>Primary Avg</span><b id="primaryAvg">0.000</b></div>
+      <div><span>Revised Avg</span><b id="revisedAvg">0.000</b></div>
+      <div><span>Variance</span><b id="revisionVariance">0.00%</b></div>
+      <div><span>Confidence</span><b id="calcConfidence">Low-Medium</b></div>
+    </div>
+  </section>
+  <section class="grid2">
+    <section class="card"><h2>Required Inputs</h2><div id="missingList"></div></section>
+    <section class="card"><h2>Merchandiser Revision</h2><div id="revisedInputs"></div><button id="applyRevisionBtn">Apply Revision</button></section>
+  </section>
+  <section class="card">
+    <h2>Fabric-wise Summary</h2>
+    <table><thead><tr><th>Fabric ID</th><th>Description</th><th>Source</th><th>KG/DZ</th></tr></thead><tbody id="fabricSummary"></tbody></table>
+  </section>
+</section>
+
+<section id="components" class="panel">
+  <section class="card">
+    <div class="row between"><h2>Component Engine</h2><button id="addComponentBtn">Add Component</button></div>
+    <p class="note">Replacement components are flagged and are not subtracted automatically until their parent panel geometry is mapped. This prevents double counting.</p>
+    <div class="tablewrap"><table id="componentTable"><thead><tr><th>Fabric</th><th>Component</th><th>Type</th><th>Qty</th><th>L cm</th><th>W cm</th><th>GSM</th><th>Layer</th><th>Waste %</th><th>KG/DZ</th><th>Status</th><th></th></tr></thead><tbody></tbody></table></div>
+    <div class="summaryline"><strong>Component Total:</strong> <span id="componentTotal">0.000 KG/DZ</span></div>
+  </section>
+</section>
+
+<section id="saved" class="panel">
+  <section class="card">
+    <div class="row between"><h2>Saved Calculations</h2><button id="refreshSavedBtn" class="secondary">Refresh</button></div>
+    <div class="tablewrap"><table id="savedTable"><thead><tr><th>Date</th><th>Buyer</th><th>Style Ref</th><th>Style</th><th>Status</th><th>Primary</th><th>Revised</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+  </section>
+</section>
+
+<section id="masters" class="panel">
+  <section class="card"><h2>Master Libraries</h2><div id="masterGrid" class="mastergrid"></div></section>
+  <section class="card"><h2>POM Synonym Master</h2><div class="tablewrap"><table><thead><tr><th>Code</th><th>Name</th><th>Synonyms</th><th>Unit</th></tr></thead><tbody id="pomTable"></tbody></table></div></section>
+  <section class="card"><h2>Allowance Master</h2><div class="tablewrap"><table><thead><tr><th>Code</th><th>Description</th><th>Default</th><th>Unit</th><th>Status</th></tr></thead><tbody id="allowanceTable"></tbody></table></div></section>
+</section>
+
+<section id="cad" class="panel">
+  <section class="grid2">
+    <section class="card">
+      <h2>CAD Validation</h2>
+      <label>CAD Consumption KG/DZ<input id="cadInput" type="number" step="0.001"></label>
+      <button id="compareCadBtn">Compare</button>
+      <div class="comparegrid"><div><span>Revised</span><b id="cadRevised">0.000</b></div><div><span>CAD</span><b id="cadActual">—</b></div><div><span>Variance</span><b id="cadVariance">—</b></div><div><span>Result</span><b id="cadResult">Pending</b></div></div>
+    </section>
+    <section class="card">
+      <h2>Approval Workflow</h2>
+      <label>Status<select id="approvalStatus"><option>PRIMARY</option><option>INPUT_REQUIRED</option><option>REVISED</option><option>MERCH_APPROVED</option><option>CAD_PENDING</option><option>CAD_VALIDATED</option><option>FINAL_APPROVED</option></select></label>
+      <label>Approved By<input id="approvedBy"></label>
+      <label>Remarks<textarea id="approvalRemarks" rows="3"></textarea></label>
+      <button id="saveApprovalBtn">Save Approval</button>
+      <div id="approvalLog" class="log"></div>
+    </section>
+  </section>
+</section>
+
+<section id="admin" class="panel">
+  <section class="grid2">
+    <section class="card">
+      <h2>SaaS Connection</h2>
+      <label>Supabase URL<input id="supabaseUrl" placeholder="https://xxxx.supabase.co"></label>
+      <label>Supabase Publishable Key<input id="supabaseKey" type="password" placeholder="sb_publishable_..."></label>
+      <button id="connectSupabaseBtn">Connect</button>
+      <p class="note">Only publishable/anon client keys belong here. Never enter a service-role key in the browser.</p>
+    </section>
+    <section class="card">
+      <h2>Account</h2>
+      <label>Email<input id="email" type="email"></label>
+      <label>Password<input id="password" type="password"></label>
+      <div class="actions"><button id="signUpBtn">Sign Up</button><button id="signInBtn" class="secondary">Sign In</button><button id="signOutBtn" class="secondary">Sign Out</button></div>
+      <div id="authStatus" class="note">Not signed in.</div>
+    </section>
+  </section>
+  <section class="card">
+    <h2>Subscription / Tenant Readiness</h2>
+    <div class="plans">
+      <div><b>Starter</b><span>1 factory • Core calculator</span></div>
+      <div><b>Professional</b><span>Multi-user • approvals • CAD history</span></div>
+      <div><b>Enterprise</b><span>ERP API • SSO • custom masters</span></div>
+    </div>
+    <p class="note">Billing UI is scaffolded. Payment-provider activation must use your commercial account and keys; no secret key is embedded in this package.</p>
+  </section>
+</section>
+</main>
+
+<footer>OCMS V10 Production Candidate • Deterministic calculations • AI-assisted intake • RLS-ready SaaS backend</footer>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
